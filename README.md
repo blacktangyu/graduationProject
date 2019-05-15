@@ -1,6 +1,6 @@
-# imoocmall
+# TY农村电商
 
-> Imooc Mall 
+> TY农村电商
 
 ## Build Setup
 
