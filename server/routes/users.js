@@ -468,4 +468,28 @@ router.post("/orderDel", function (req,res,next) {
     }
   });
 });
+
+//修改订单状态
+router.post("/orderStatus", function (req,res,next) {
+  var userId = req.cookies.userId,
+      orderId = req.body.orderId,
+      orderStatus = req.body.orderStatus;
+  User.update({"userId":userId,"orderList.orderId":orderId},{
+    "orderList.$.orderStatus":orderStatus,
+  }, function (err,doc) {
+    if(err){
+      res.json({
+        status:'1',
+        msg:err.message,
+        result:''
+      });
+    }else{
+      res.json({
+        status:'0',
+        msg:'',
+        result:'suc'
+      });
+    }
+  })
+});
 module.exports = router;

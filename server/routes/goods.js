@@ -64,7 +64,7 @@ router.get("/list", function (req,res,next) {
 
 //加入到购物车
 router.post("/addCart", function (req,res,next) {
-  var userId = '100000077',productId = req.body.productId;
+  var userId = req.cookies.userId,productId = req.body.productId;
   console.log(req)
   var User = require('../models/user');
   User.findOne({userId:userId}, function (err,userDoc) {
@@ -132,5 +132,33 @@ router.post("/addCart", function (req,res,next) {
     }
   })
 });
+//添加商品评论接口
+router.post('/addComment',function(req,res){
+  const productId = req.body.productId,comment = req.body.comment;
+  Goods.findOne({productId},function(err,doc){//第一个参数是查询条件，第二个是回调函数
+    if(err){
+      res.json({
+          status:"1",
+          msg:err.message
+          })
+      }else{
+        doc.comments.push(comment)
+        doc.save(function(err1,doc1){
+          if(err1){
+            res.json({
+                status:"1",
+                msg:err1.message
+                })
+            }else{
+              res.json({
+                status:'0',
+                msg:'',
+                result:'suc'
+              })
+            }
+        })
+      }
+  })
+})
 
 module.exports = router;
