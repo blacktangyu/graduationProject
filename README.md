@@ -1,6 +1,6 @@
 # TY农村电商
 
-> TY农村电商
+> TY扬州农村电商
 
 ## Build Setup
 
