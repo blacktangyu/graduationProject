@@ -14,7 +14,7 @@ router.get('/test', function(req, res, next) {
 
 router.post("/login", function (req,res,next) {
   var param = {
-      userName:req.body.userName,
+      userId:req.body.userId,
       userPwd:req.body.userPwd
   }
   User.findOne(param, function (err,doc) {
@@ -60,6 +60,24 @@ router.post("/register",function(req,res){
       res.json({
         status:"1",
         msg:doc
+      });
+    }
+  })
+});
+//check UserId
+router.post("/checkUserId",function(req,res){
+  const userId = req.body.userId
+  User.findOne({"userId":userId},function(err,doc){
+    if(err){
+      res.json({
+        status:"0",
+        msg:err.message
+      });
+    }else{
+      res.json({
+        status:'0',
+        msg:'',
+        result:doc
       });
     }
   })
@@ -298,6 +316,37 @@ router.post("/setDefault", function (req,res,next) {
     });
   }
 });
+//新增地址接口
+router.post("/addAdress",function(req,res){
+  const userId = req.cookies.userId,userName=req.body.userName,streetName=req.body.streetName,tel=req.body.tel;
+  User.findOne({userId}, function (err,doc){
+    console.log(doc);
+    if(err){
+      res.json({
+        status:"1",
+        msg:err.message
+      })
+    }else{
+        
+        doc.addressList.push({userName,streetName,tel});
+        doc.save(function (err1,doc1) {
+          if(err1){
+            res.json({
+              status:"1",
+              msg:err1.message
+            })
+          }else{
+            res.json({
+              status:'0',
+              msg:'',
+              result:doc1
+            })
+          }
+        })
+      
+    }
+  })
+})
 
 //删除地址接口
 router.post("/delAddress", function (req,res,next) {

@@ -47,10 +47,24 @@
           title="用户注册"
           :visible.sync="registerModalFlag"
           width="30%">
-
-          <span slot="footer" class="dialog-footer">
-            <el-button type="primary" @click="register">确 定</el-button>
-          </span>
+<el-form :model="ruleForm" status-icon :rules="rules" ref="ruleForm" label-width="100px" class="demo-ruleForm">
+  <el-form-item label="用户ID" prop="userId">
+    <el-input  v-model="ruleForm.userId" autocomplete="off"></el-input>
+  </el-form-item>
+  <el-form-item label="用户名" prop="userName">
+    <el-input  v-model="ruleForm.userName" autocomplete="off"></el-input>
+  </el-form-item>
+  <el-form-item label="密码" prop="pass">
+    <el-input type="password" v-model="ruleForm.pass" autocomplete="off"></el-input>
+  </el-form-item>
+  <el-form-item label="确认密码" prop="checkPass">
+    <el-input type="password" v-model="ruleForm.checkPass" autocomplete="off"></el-input>
+  </el-form-item>
+  <el-form-item>
+    <el-button type="primary" @click="submitForm('ruleForm')">注册</el-button>
+    <el-button @click="resetForm('ruleForm')">重置</el-button>
+  </el-form-item>
+</el-form>
         </el-dialog>
         <div class="md-modal modal-msg md-modal-transition" v-bind:class="{'md-show':loginModalFlag}">
           <div class="md-modal-inner">
@@ -61,12 +75,12 @@
             <div class="md-content">
               <div class="confirm-tips">
                 <div class="error-wrap">
-                  <span class="error error-show" v-show="errorTip">用户名或者密码错误</span>
+                  <span class="error error-show" v-show="errorTip">用户Id或者密码错误</span>
                 </div>
                 <ul>
                   <li class="regi_form_input">
                     <i class="icon IconPeople"></i>
-                    <input type="text" tabindex="1" name="loginname" v-model="userName" class="regi_login_input regi_login_input_left" placeholder="User Name" data-type="loginname">
+                    <input type="text" tabindex="1" name="loginname" v-model="userId" class="regi_login_input regi_login_input_left" placeholder="User Name" data-type="loginname">
                   </li>
                   <li class="regi_form_input noMargin">
                     <i class="icon IconPwd"></i>
@@ -90,12 +104,87 @@
     import { mapState } from 'vuex'
     export default{
         data(){
+           var checkTel = (rule, value, callback) => {
+        if (!value) {
+          return callback(new Error('手机号不能为空'));
+        }
+        setTimeout(() => {
+          if (!Number.isInteger(value)) {
+            callback(new Error('请输入数字值'));
+          } else {
+            if (value.toString().length != 11) {
+              callback(new Error('请输入正确的手机号码'));
+            } else {
+              callback();
+            }
+          }
+        }, 1000);
+      };
+       var checkUserId = async (rule, value, callback) => {
+        if (value === '') {
+          callback(new Error('用户ID不能为空'));
+        } else {
+        await this.checkUserId(value)
+        if (this.idExist)
+        { 
+           callback(new Error('用户ID已存在'))
+          }else{
+            callback()
+          }
+
+        }
+        
+      };
+      var checkUserName = (rule, value, callback) => {
+        if (value === '') {
+          callback(new Error('用户名不能为空'));
+        } else {
+          callback();
+        }
+      };
+      var validatePass = (rule, value, callback) => {
+        if (value === '') {
+          callback(new Error('请输入密码'));
+        } else {
+          if (this.ruleForm.checkPass !== '') {
+            this.$refs.ruleForm.validateField('checkPass');
+          }
+          callback();
+        }
+      };
+      var validatePass2 = (rule, value, callback) => {
+        if (value === '') {
+          callback(new Error('请再次输入密码'));
+        } else if (value !== this.ruleForm.pass) {
+          callback(new Error('两次输入密码不一致!'));
+        } else {
+          callback();
+        }
+      };
             return{
-              userName:'admin',
-              userPwd:'123456',
+              userId:'',
+              userPwd:'',
               errorTip:false,
               registerModalFlag:false,
-              loginModalFlag:false
+              loginModalFlag:false,
+              ruleForm: {
+                  userId:'',
+                  userName:'',
+                  pass: '',
+                  checkPass: '',
+                },
+                idExist:false,
+        rules: {
+          userId:[{validator: checkUserId, trigger: 'blur'}],
+          userName:[{validator: checkUserName, trigger: 'blur'}],
+          pass: [
+            { validator: validatePass, trigger: 'blur' }
+          ],
+          checkPass: [
+            { validator: validatePass2, trigger: 'blur' }
+          ],
+          
+        }
             }
         },
         computed:{
@@ -111,6 +200,27 @@
             this.checkLogin();
         },
         methods:{
+          checkUserId(userId){
+            axios.post("/users/checkUserId",{userId}).then((res) => {
+              if (res.data.result){ this.idExist = true} else { this.idExist = false}
+            })
+          },
+            submitForm(formName) {
+        this.$refs[formName].validate((valid) => {
+          if (valid) {
+            this.register()
+            this.userId=this.ruleForm.userId
+            this.userPwd=this.ruleForm.pass
+            this.login()
+          } else {
+            console.log('error submit!!');
+            return false;
+          }
+        });
+      },
+      resetForm(formName) {
+        this.$refs[formName].resetFields();
+      },
           handleCommand(command){
             if(command=='cart'){
               this.$router.push({path:'/cart'})
@@ -121,7 +231,7 @@
           },
           register(){
             axios.post("/users/register",{
-              userName:"tangyu",userId:"19970627",userPwd:"tangyu2019"
+              userName:this.ruleForm.userName,userId:this.ruleForm.userId,userPwd:this.ruleForm.pass,
             })
             this.registerModalFlag=false
           },
@@ -141,12 +251,12 @@
                 });
             },
             login(){
-                if(!this.userName || !this.userPwd){
+                if(!this.userId || !this.userPwd){
                   this.errorTip = true;
                   return;
                 }
                 axios.post("/users/login",{
-                  userName:this.userName,
+                  userId:this.userId,
                   userPwd:this.userPwd
                 }).then((response)=>{
                     let res = response.data;

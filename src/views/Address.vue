@@ -76,13 +76,12 @@
                     </div>
                     <div class="addr-opration addr-default" v-if="item.isDefault">默认地址</div>
                   </li>
-                  <li class="addr-new">
-                    <div class="add-new-inner">
-                      <i class="icon-add">
-                        <svg class="icon icon-add"><use xlink:href="#icon-add"></use></svg>
-                      </i>
-                      <p>新增地址</p>
-                    </div>
+                  <li >
+                    <div >
+                      <span>收件人：</span> <input type="text" v-model="adress.userName"><br>
+                      <span>收件地址：</span> <input type="text" v-model="adress.streetName"><br>
+                      <span>收件人号码：</span> <input type="text" v-model="adress.tel">
+                      <el-button type="primary" plain @click="addAdress">新增地址</el-button>                    </div>
                   </li>
                 </ul>
               </div>
@@ -150,7 +149,12 @@
               selectedAddrId:'',
               addressList:[],
               isMdShow:false,
-              addressId:''
+              addressId:'',
+              adress:{
+                userName:'',
+                streetName:'',
+                tel:'',
+              }
           }
       },
       mounted(){
@@ -181,6 +185,11 @@
               }else{
                 this.limit = 3;
               }
+          },
+          addAdress(){
+            // if(hits.adress.userName!=''&& this.adress.streetName!='' &&  this.adress.tel!=''){
+                axios.post("/users/addAdress",{userName:this.adress.userName,streetName:this.adress.streetName,tel:this.adress.tel}).then(this.init())
+            // }
           },
           setDefault(addressId){
               axios.post("/users/setDefault",{
