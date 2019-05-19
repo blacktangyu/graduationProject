@@ -46,6 +46,24 @@ router.post("/login", function (req,res,next) {
   });
 });
 
+//注册接口
+router.post("/register",function(req,res){
+  const userId = req.body.userId,userName = req.body.userName,userPwd = req.body.userPwd;
+  User.create({"userId":userId,"userName":userName,"userPwd":userPwd},function(err,doc){
+    if(err){
+      res.json({
+        status:"0",
+        msg:err.message
+      });
+    }else{
+      console.log(doc)
+      res.json({
+        status:"1",
+        msg:doc
+      });
+    }
+  })
+})
 
 //登出接口
 router.post("/logout", function (req,res,next) {

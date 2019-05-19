@@ -69,12 +69,13 @@
                                 :src="'static/'+item.productImage"
                                 >
                               </div>
-                             <div style="display:inline-block;height:160px;text-align:right;width:60%"">
+                             <div style="display:inline-block;height:160px;text-align:right;width:60%">
                                   <el-input type="textarea" v-model="comment[index]" style="padding:0"></el-input> 
                                   <el-button
                                       size="mini"
                                       type="warning"
                                       @click="handleComment(item.productId,comment[index])"
+                                      :disabled=!comment[index]
                                       style="margin-top:3px"
                                   >发布评论</el-button>
                              </div>
@@ -94,10 +95,13 @@
           </el-table>
           <el-dialog title="订单详细" :visible.sync="detailVisible">
             <p><span class="label">订单编号:</span>{{detailData.orderId}}</p>
-            <p><span class="label">订单商品:</span></p>
-            <ul>
-              <li v-for="item in detailData.goodsList">{{item.productName}}</li>
-            </ul>
+            <p><span class="label">订单商品:</span>
+              <span v-for="item in detailData.goodsList">{{item.productName}}</span>
+            </p>
+            <p><span>收货地址:</span>{{detailData.addressInfo.streetName}}</p>
+            <p><span>收件人:</span>{{detailData.addressInfo.userName}}</p>
+            <p><span>收件人号码:</span>{{detailData.addressInfo.tel}}</p>
+    
           </el-dialog>
       </div>
       <nav-footer></nav-footer>
@@ -114,7 +118,9 @@
             return{
               orderList:{},
               data:[],
-              detailData:{},
+              detailData:{
+                addressInfo:{},
+              },
               detailVisible:false,
               cIndex:0,
               comment:[],
@@ -172,6 +178,7 @@
             handleDetail(index,row){
               this.detailData=this.orderList[index]
               this.detailVisible=true
+              console.log(this.detailData);
             },
             handleConfirm(index ,row){
               axios.post("/users/orderStatus",{

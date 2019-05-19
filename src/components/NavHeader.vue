@@ -37,12 +37,21 @@
                     <el-dropdown-item command="order">订单管理</el-dropdown-item>
                   </el-dropdown-menu>
                 </el-dropdown>
-               
+                <a href="javascript:void(0)" class="navbar-link" @click="registerModalFlag=true" v-if="!nickName">注册</a>
                 <a href="javascript:void(0)" class="navbar-link" @click="loginModalFlag=true" v-if="!nickName">登录</a>
                 <a href="javascript:void(0)" class="navbar-link" @click="logOut" v-else>登出</a>
               </div>
             </div>
         </div>
+        <el-dialog
+          title="用户注册"
+          :visible.sync="registerModalFlag"
+          width="30%">
+
+          <span slot="footer" class="dialog-footer">
+            <el-button type="primary" @click="register">确 定</el-button>
+          </span>
+        </el-dialog>
         <div class="md-modal modal-msg md-modal-transition" v-bind:class="{'md-show':loginModalFlag}">
           <div class="md-modal-inner">
             <div class="md-top">
@@ -68,7 +77,6 @@
               <div class="login-wrap">
                 <a href="javascript:;" class="btn-login" @click="login">登  录</a>
                 <br>
-                <a href="javascript:;" class="btn-login" @click="login">注  册</a>
               </div>
             </div>
           </div>
@@ -86,6 +94,7 @@
               userName:'admin',
               userPwd:'123456',
               errorTip:false,
+              registerModalFlag:false,
               loginModalFlag:false
             }
         },
@@ -109,6 +118,12 @@
             if(command=='order'){
             this.$router.push({path:'/orderList'})
             }
+          },
+          register(){
+            axios.post("/users/register",{
+              userName:"tangyu",userId:"19970627",userPwd:"tangyu2019"
+            })
+            this.registerModalFlag=false
           },
             checkLogin(){
                 axios.get("/users/checkLogin").then((response)=>{

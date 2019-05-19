@@ -134,7 +134,7 @@ router.post("/addCart", function (req,res,next) {
 });
 //添加商品评论接口
 router.post('/addComment',function(req,res){
-  const productId = req.body.productId,comment = req.body.comment;
+  const userId=req.cookies.userId,productId = req.body.productId,comment = req.body.comment;
   Goods.findOne({productId},function(err,doc){//第一个参数是查询条件，第二个是回调函数
     if(err){
       res.json({
@@ -142,7 +142,7 @@ router.post('/addComment',function(req,res){
           msg:err.message
           })
       }else{
-        doc.comments.push(comment)
+        doc.comments.push({"userId":userId,"comment":comment})
         doc.save(function(err1,doc1){
           if(err1){
             res.json({
