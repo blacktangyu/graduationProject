@@ -28,9 +28,19 @@
               <div class="accessory-list col-4">
                 <ul>
                   <li v-for="item in goodsList">
+                    <el-tooltip placement="top"  >
+                        <div slot="content" v-if="item.comments[0]">
+                          <div>
+                            <p v-for="comment in item.comments">
+                              {{comment.comment}}
+                            </p>
+                          </div>
+                        </div>
+                        <div slot="content" v-else>尚未有评论</div>
                     <div class="pic">
                       <a href="#"><img v-lazy="'static/'+item.productImage" alt=""></a>
                     </div>
+                    </el-tooltip>
                     <div class="main">
                       <div class="name">{{item.productName}}</div>
                       <div class="price">{{item.salePrice | currency('¥')}}</div>
